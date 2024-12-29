@@ -48,7 +48,7 @@ class StripeController extends Controller
             'exam_id' => $exam_id,
             'price' => $price,
         ]);
-
+        session()->forget('order_completed');
         return view('index');
     }
 }

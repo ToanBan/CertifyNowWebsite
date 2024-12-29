@@ -86,7 +86,7 @@ export default function Exam(){
                                     <a  style={{borderRadius:"30px"}} 
                                     className="btn btn-primary mb-4"
                                     onClick={OpenCamera}
-                                    href={`/exam/${item.id}`}>Bắt Đầu Thi</a>
+                                    href={isOpen ? `/exam/${item.id}` : "#"} >Bắt Đầu Thi</a>
                                 ):(
                                     <button
                                         onClick={()=>SelectedOrder(item.price, item.name_exam, item.id)}

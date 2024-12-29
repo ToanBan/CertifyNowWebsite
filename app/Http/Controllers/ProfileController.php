@@ -10,9 +10,14 @@ use Illuminate\Support\Facades\Auth;
 class ProfileController extends Controller
 {
     public function index(){
-        $userId = auth()->user()->id;
+        $userId = Auth::id();
         $profile = DB::table('profiles')->where('user_id', $userId)->get();
         return response()->json($profile);
+    }
+
+    public function getdata(){
+        $profiles = Profile::with('user')->get();
+        return response()->json($profiles);
     }
 
     public function update($id){
@@ -43,6 +48,14 @@ class ProfileController extends Controller
         return response()->json(['message' => $haveImage]);
     }
 
+    public function destroy($id){
+        $profile = Profile::find($id);
+        if($profile){
+            $profile->delete();
+            return response()->json(['message' => 'thành công']);
+        }
+        return response()->json(['message' => 'thất bại']);
+    }
 
     public function setupfaceid(Request $request){
         $user = Auth::user();

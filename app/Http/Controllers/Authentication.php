@@ -44,6 +44,7 @@ class Authentication extends Controller
             'message' => 'Login successful. Please check your email for OTP.',
             'token' => $token,
             'otp_expiration' => $otpExpiration,
+            'successfully' => true,
         ]);
     }
     
@@ -61,14 +62,14 @@ class Authentication extends Controller
 
     public function verify(Request $request){
         $userId = auth()->user()->id;
+        $roleUser = auth()->user()->role;
         $numberOTP = $request->input('numberotp');
         $otpN = (int)$numberOTP;
         $otpS = session()->get('otp');
         if($otpN == $otpS) {
             session(['verify' => true]);
-            session()->forget('otp');
-            
-            return response()->json(['message' => true]);
+            session()->forget('otp');  
+            return response()->json(['message' => true, 'role' => $roleUser]);
         }
         Auth::logout();
         $request->session()->invalidate();
@@ -78,5 +79,17 @@ class Authentication extends Controller
 
     public function loginfaceid(Request $request){
         $user = Auth::user();
+    }
+
+    public function registerfaceid(Request $request){
+        $faceDescriptor = json_decode($request->inptu('face_id_token'));
+        if(!$faceDescriptor){
+            return response()->json(['message' => 'Không Hợp Lệ'], 400);
+        }
+
+        $user = Auth::user();
+        $user->face_id_image = json_encode($faceDescriptor);
+        $user->save();
+        return response()->json(['message' => 'FaceID đã được đăng ký thành công']);
     }
 }

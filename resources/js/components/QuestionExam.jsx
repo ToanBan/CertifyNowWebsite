@@ -122,6 +122,12 @@ export default function QuestionExam (){
         .catch(err => console.error(err));
     }
 
+    const formatSecond = (seconds) => {
+        const minutes = Math.floor(seconds / 60); 
+        const remainingSeconds = seconds % 60;   
+        return `${minutes} phút ${remainingSeconds} giây`;
+    }
+
     useEffect(()=>{
         StartExam();
     }, []);
@@ -150,7 +156,7 @@ export default function QuestionExam (){
             <Navigation/>
             <div className="container mt-3">
                 <div className="d-flex justify-content-end align-items-center">
-                    <p style={{fontSize:"18px", fontWeight:"700"}}>Thời Gian: {timeLeft} Phút</p>
+                    <p style={{fontSize:"18px", fontWeight:"700"}}>Thời Gian: {formatSecond(timeLeft)} Phút</p>
                 </div>
 
                 {questions.length > 0 ? (
@@ -182,7 +188,7 @@ export default function QuestionExam (){
                 </div>          
             </div>
 
-            {isWebcamEnabled && (<Webcam className="web-camera" style={{width:"200px", height:"200px"}} ref={webRef}/>)}
+            {isWebcamEnabled && (<Webcam className="web-camera" style={{width:"150px", height:"150px"}} ref={webRef}/>)}
         
         </>
     )

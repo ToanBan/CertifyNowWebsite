@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Authentication;
 use App\Http\Controllers\ProfileController;
@@ -9,6 +10,7 @@ use App\Http\Controllers\AnswerController;
 use App\Http\Controllers\StripeController;
 use App\Http\Controllers\UserAnswersController;
 use App\Http\Controllers\OrderExamController;
+use App\Http\Controllers\FaceAuthController;
 Route::get('/', function(){
     return view('index');
 })->middleware('ck_login');
@@ -33,31 +35,40 @@ Route::get('/test', function(){
 });
 
 Route::post('/login', [Authentication::class,'login'])->name('login');
-Route::post('/login-faceid', [Authentication::class, 'loginfaceid']);
-
-
 Route::post('/register', [Authentication::class,'register'])->name('register');
-
 Route::post('/verify', [Authentication::class, 'verify'])->name('verify');
 
+// thiết lập faceID
+Route::post('/register-faceid', [Authentication::class, 'registerfaceid']);
+
+
+
+
+
 Route::get('/profile', [ProfileController::class, 'index']);
+Route::get('/profiles', [ProfileController::class, 'getdata']);
+Route::delete('/profile/{id}', [ProfileController::class, 'destroy']);
 Route::post('/profile/setup-faceid', [ProfileController::class, 'setupfaceid']);
 Route::put('/profile/{id}', [ProfileController::class, 'update']);
 
 Route::get('/admin', function(){
     return view('admin');
-});
+})->middleware('ck_admin');
 
-Route::get('/exam', [ExamController::class,'index'])->name('success');;
+Route::get('/exam', [ExamController::class,'index']);
 Route::post('/exam', [ExamController::class,'store']);
 Route::delete('/exam/{id}', [ExamController::class,'destroy']);
 Route::put('/exam/{id}', [ExamController::class,'update']);
+
+Route::get('/calculated_month', [OrderExamController::class, 'calculatedMonth']);
 
 Route::get('/question', [QuestionController::class,'index']);
 Route::post('/question', [QuestionController::class,'store']);
 Route::delete('/question/{id}', [QuestionController::class,'destroy']);
 Route::put('/question/{id}', [QuestionController::class,'update']);
 Route::post('/question/{id}', [QuestionController::class,'show']);
+
+
 
 Route::get('/answer', [AnswerController::class, 'index']);
 Route::post('/answer', [AnswerController::class,'store']);
@@ -74,10 +85,11 @@ Route::get('/exam/{id}', function(){
 
 
 Route::post('/session', [StripeController::class, 'session']);
-Route::get('/success', [StripeController::class, 'success']);
+Route::get('/success', [StripeController::class, 'success'])->middleware('ck_order')->name('success');
 Route::get('/orderexam', [OrderExamController::class, 'ordered']);
 
-
+Route::post('/login-faceid', [FaceAuthController::class, 'faceLogin']);
+Route::get('/face-status', [FaceAuthController::class, 'faceStatus']);
 
 Route::get('/{verify}', function(){
     return view('index');

@@ -1,11 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Navigation from "./Navigation";
-import Webcam from "react-webcam";
+import ModalFaceIdRegister from "./ModalFaceIDRegister";
 export default function MyProfile(){
     const [myProfile, setMyProfile] = useState('');
     const [editProfile, setEditProfile] = useState('');
-    const webcamRef = useRef(null);
-    const [imageSrc, setImageSrc] = useState(null);
     const imageUrl = "http://127.0.0.1:8000/storage/profiles/";
     const urlDefault = "https://cognitiveclass.ai/assets/user-dac44c15e5f337629da17a1cc93b37fb16bead76247c3cc3c7e05dc56c4ce7f4.svg";
 
@@ -46,25 +44,6 @@ export default function MyProfile(){
         .catch(err => console.error(err));
     }
 
-    const ScanFace = () => {
-        const imageSrc = webcamRef.current.getScreenshot();
-        const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
-        fetch('/profile/setup-faceid', {
-            method:"POST",
-            body: JSON.stringify({'image_faceid': imageSrc}),
-            headers : {
-                'X-CSRF-TOKEN' : csrfTokenMeta.content,
-                'Accept' : 'application/json',
-                'Content-Type' : 'application/json',
-            }
-        })
-        .then(resposne => resposne.json())
-        .then(data => {
-            console.log(data);
-            alert("Thiết Lập FaceID Thành Công");
-        })
-        .catch(err => console.error(err));
-    }
 
    
 
@@ -173,24 +152,7 @@ export default function MyProfile(){
             </div>
 
             {/* Thiết Lập FaceID */}
-            <div className="modal" id="faceid">
-                <div className="modal-dialog">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h4>Thiết Lập FaceID</h4>
-                        </div>
-
-                        <div className="modal-body">
-                            <Webcam  style={{ width: 400, height: 300 }} ref={webcamRef} screenshotFormat="image/png"/>
-                            <div>
-                                <button className="button" onClick={ScanFace}>Chụp Ảnh</button>
-                            </div>
-                        </div>
-                    </div>
-
-                                
-                </div>
-            </div>
+            <ModalFaceIdRegister/>
 
         </>
     )

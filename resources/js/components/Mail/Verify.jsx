@@ -27,7 +27,11 @@ export default function Verify(){
         .then(response => response.json())
         .then(data => {
             if(data.message){
-                window.location.href = "/";
+                if(data.role = 'admin'){
+                    window.location.href = "/admin"
+                }else{
+                    window.location.href = "/"
+                }
             }else{
                 window.location.href = "/login";
             }
