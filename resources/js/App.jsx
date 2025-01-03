@@ -11,6 +11,7 @@ import Exam from './components/Exam';
 import Success from './components/Sucess';
 import QuestionExam from './components/QuestionExam';
 import ExamDone from './components/ExamDone';
+import Courses from './components/Courses';
 function App(){
     return (
         <>
@@ -20,6 +21,7 @@ function App(){
                     <Route path='/login' element={<Login/>}></Route>
                     <Route path='/verify' element={<Verify/>}></Route>
                     <Route path='/myprofile' element={<MyProfile/>}></Route>
+                    <Route path='/coursesandprojects' element={<Courses/>}></Route>
                     <Route path='/exam' element={<Exam/>}></Route>
                     <Route path='/exam/done' element={<ExamDone/>}></Route>
                     <Route path='/exam/:id' element={<QuestionExam/>}></Route>

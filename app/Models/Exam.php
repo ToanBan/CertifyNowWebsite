@@ -15,4 +15,8 @@ class Exam extends Model
     public function orderexam(){
         return $this->hasMany(OrderExam::class);
     }
+
+    public function userexam(){
+        return $this->hasMany(ExamResults::class);
+    }
 }

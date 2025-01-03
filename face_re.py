@@ -1,15 +1,25 @@
-from deepface import DeepFace
 import sys
-import json
+import face_recognition
 
-def compare_faces(img1_path, img2_path):
+def verify_face(known_image_path, temp_image_path):
     try:
-        result = DeepFace.verify(img1_path, img2_path)
-        return json.dumps({"verified": result['verified'], "distance": result['distance']})
+        known_image = face_recognition.load_image_file(known_image_path)
+        temp_image = face_recognition.load_image_file(temp_image_path)
+        
+        known_encoding = face_recognition.face_encodings(known_image)
+        temp_encoding = face_recognition.face_encodings(temp_image)
+        
+        if not known_encoding or not temp_encoding:
+            return "No face found in one or both images"
+
+        result = face_recognition.compare_faces([known_encoding[0]], temp_encoding[0])
+        
+        return "Match" if result[0] else "No Match"
     except Exception as e:
-        return json.dumps({"error": str(e)})
+        return f"Error: {str(e)}"
 
 if __name__ == "__main__":
-    img1 = sys.argv[1]
-    img2 = sys.argv[2]
-    print(compare_faces(img1, img2))
+    known_path = sys.argv[1]
+    temp_path = sys.argv[2]
+    result = verify_face(known_path, temp_path)
+    print(result)

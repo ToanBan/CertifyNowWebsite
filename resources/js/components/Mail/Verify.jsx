@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { data } from "react-router-dom";
 
 export default function Verify(){
     const [redirect, setRedirect] = useState(null);
-
+    const [seconds, setSecond] = useState(60);
     const [numberOTP, setNumberOTP] = useState([]);
     const SendNumberOTP = numberOTP.join('');
     const GetNumberOTP = (input) => {
@@ -11,6 +11,24 @@ export default function Verify(){
             return [...prevNumber, input];
         })
     }
+
+    console.log(numberOTP);
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setSecond((prev) => {
+                if (prev > 0) {
+                    return prev - 1;
+                } else {
+                    clearInterval(timer); 
+                    return 0;
+                }
+            });
+        }, 1000);
+    
+        return () => clearInterval(timer);
+    }, []);
+    
 
     const SendOTP = (e) => {
         e.preventDefault();
@@ -45,12 +63,13 @@ export default function Verify(){
 
                 <div className="w-100 d-flex justify-content-center align-items-center" 
                 style={{height:"100vh", backgroundColor:"#4070f4"}}>
-                    <div className="bg-white" style={{height:"400px", width:"495px", borderRadius:"30px"}}>
+                    <div className="bg-white" style={{height:"400px", width:"495px", borderRadius:"30px", overflow:"hidden"}}>
                         <div className="d-flex justify-content-center align-items-center mt-4">
                             <img style={{width:"75px"}} src="https://cdn-icons-png.flaticon.com/512/4314/4314696.png" alt="" />
                         </div>
 
                         <p  className="text-center" style={{fontSize:"24px", color:"#333333", fontWeight:"500"}}>Enter OTP Code</p>
+                        <p  className="text-center" style={{fontSize:"16px", color:"#333333", fontWeight:"500"}}>Thời Gian Còn Lại: {seconds}</p>
                         <div>
                             <form onSubmit={SendOTP}>
                                 <div className="d-flex justify-content-center gap-3">

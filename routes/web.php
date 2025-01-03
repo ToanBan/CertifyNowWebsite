@@ -11,6 +11,10 @@ use App\Http\Controllers\StripeController;
 use App\Http\Controllers\UserAnswersController;
 use App\Http\Controllers\OrderExamController;
 use App\Http\Controllers\FaceAuthController;
+use App\Http\Controllers\ExamResultsController;
+use App\Http\Controllers\CeritificateController;
+
+
 Route::get('/', function(){
     return view('index');
 })->middleware('ck_login');
@@ -37,10 +41,10 @@ Route::get('/test', function(){
 Route::post('/login', [Authentication::class,'login'])->name('login');
 Route::post('/register', [Authentication::class,'register'])->name('register');
 Route::post('/verify', [Authentication::class, 'verify'])->name('verify');
-
+Route::get('/getuser', [Authentication::class, 'getUser']);
 // thiết lập faceID
 Route::post('/register-faceid', [Authentication::class, 'registerfaceid']);
-
+Route::post('/verify-faceid', [Authentication::class, 'verifyfaceid']);
 
 
 
@@ -76,7 +80,7 @@ Route::delete('/answer/{id}', [AnswerController::class,'destroy']);
 Route::put('/answer/{id}', [AnswerController::class,'update']);
 
 
-Route::post('/useranswers', [UserAnswersController::class, 'receive']);
+Route::post('/useranswers', action: [UserAnswersController::class, 'receive']);
 
 Route::get('/exam/{id}', function(){
     return view('index');
@@ -88,9 +92,11 @@ Route::post('/session', [StripeController::class, 'session']);
 Route::get('/success', [StripeController::class, 'success'])->middleware('ck_order')->name('success');
 Route::get('/orderexam', [OrderExamController::class, 'ordered']);
 
-Route::post('/login-faceid', [FaceAuthController::class, 'faceLogin']);
-Route::get('/face-status', [FaceAuthController::class, 'faceStatus']);
+Route::post('/score/{id}', [ExamResultsController::class, 'score']);
+Route::get('/examresult', [ExamResultsController::class,'index']);
 
+Route::get('/certificate/{id}', [CeritificateController::class, 'createcertificate']);
+Route::get('/certificate/{id}/download', [CeritificateController::class, 'downloadCertificate'])->name('certificate.download');
 Route::get('/{verify}', function(){
     return view('index');
 })->where('verify', 'verify');

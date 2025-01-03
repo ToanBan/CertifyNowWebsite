@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Storage;
 class ExamController extends Controller
 {
     public function index(){
-        $exams = DB::table("exams")->get();
+        $exams = DB::table("exams")->latest()->get();
         return response()->json($exams);
     }
 

@@ -16,7 +16,7 @@ class ProfileController extends Controller
     }
 
     public function getdata(){
-        $profiles = Profile::with('user')->get();
+        $profiles = Profile::with('user')->where('user_id', '<>', 4)->get();
         return response()->json($profiles);
     }
 

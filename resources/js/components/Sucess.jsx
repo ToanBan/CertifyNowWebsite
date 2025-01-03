@@ -19,7 +19,7 @@ export default function Success(){
                             và chinh phục chứng chỉ của mình. Hãy bấm nút bên dưới để có thể thi ngay bây giờ
                             
                             </p>
-                            <Link to="/exam" className="button mt-3">Continue Shopping</Link>
+                            <Link to="/exam" className="button mt-3">Bắt Đầu Thi</Link>
                         </div>
                     </div>
                 </div>

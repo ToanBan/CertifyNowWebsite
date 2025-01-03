@@ -31,6 +31,10 @@ class User extends Authenticatable
         return $this->hasMany(OrderExam::class);
     }
 
+    public function userexam(){
+        return $this->hasMany(ExamResults::class);
+    }
+
     protected $fillable = [
         'name',
         'email',

@@ -1,62 +1,28 @@
-import React, { useEffect, useRef } from "react";
-import * as faceapi from 'face-api.js';
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import Webcam from "react-webcam";
 
 export default function ModalFaceIdRegister() {
     const videoRef = useRef(null);
+    const [imageSrc, setImageSrc] = useState(null);
 
-    const startVideo = () => {
-        navigator.mediaDevices.getUserMedia({ video: true })
-            .then(stream => {
-                if (videoRef.current) {
-                    videoRef.current.srcObject = stream;
-                }
-            })
-            .catch(err => {
-                console.error("Lỗi truy cập camera: ", err);
-                alert("Không thể truy cập camera. Hãy kiểm tra quyền camera.");
-            });
-    };
-
-    const loadModels = async () => {
-        try {
-            await faceapi.nets.ssdMobilenetv1.loadFromUri('/models/ssd_mobilenetv1');
-            await faceapi.nets.tinyFaceDetector.loadFromUri('/models/tiny_face_detector');
-            await faceapi.nets.faceLandmark68Net.loadFromUri('/models/face_landmark_68');
-            await faceapi.nets.faceRecognitionNet.loadFromUri('/models/face_recognition');
-            console.log('Tất cả models đã tải thành công!');
-        } catch (error) {
-            console.error("Lỗi tải model FaceAPI: ", error);
-        }
-    };
-
-    const handleCapture = async () => {
-        const detections = await faceapi.detectSingleFace(
-            videoRef.current,
-            new faceapi.TinyFaceDetectorOptions()
-        ).withFaceLandmarks().withFaceDescriptor();
-
-        if (detections) {
-            const faceDescriptor = Array.from(detections.descriptor);
-            const response = await fetch('http://localhost:8000/register-faceid', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                },
-                body: JSON.stringify({ face_id_token: JSON.stringify(faceDescriptor) }),
-            });
-
-            const data = await response.json();
-            alert(data.message);
-        } else {
-            alert('Không phát hiện khuôn mặt, vui lòng thử lại.');
-        }
-    };
-
-    useEffect(() => {
-        loadModels();
-        startVideo();
-    }, []);
+    const capture = useCallback(()=>{
+        const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
+        const imageSrc = videoRef.current.getScreenshot();
+        fetch('/register-faceid', {
+            method:"POST", 
+            body: JSON.stringify({imageSrc}),
+            headers: {
+                'X-CSRF-TOKEN' : csrfTokenMeta.content,
+                'Content-Type' : 'application/json',
+                'Accept' : 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert("Nhận Diện Khuôn Mặt Thành Công");
+        })
+        .catch(err => console.error(err));
+    }, [videoRef]);
 
    
 
@@ -64,14 +30,14 @@ export default function ModalFaceIdRegister() {
         <>
             <div className="modal fade" id="faceid" tabIndex="-1">
                 <div className="modal-dialog">
-                    <div className="modal-content">
+                    <div className="modal-content" style={{width:"675px"}}>
                         <div className="modal-header">
                             <h4>Thiết Lập FaceID</h4>
                         </div>
                         <div className="modal-body">
-                            <video ref={videoRef} autoPlay muted width="482" height="560"></video>
+                            <Webcam ref={videoRef}/>
                             <div>
-                                <button className="button" onClick={handleCapture}>Chụp Ảnh</button>
+                                <button onClick={capture} className="button">Chụp Ảnh</button>
                             </div>
                         </div>
                     </div>

@@ -8,6 +8,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\OtpMail;
 use App\Models\Profile;
+use Illuminate\Support\Facades\Storage;
 class Authentication extends Controller
 {
 
@@ -36,9 +37,9 @@ class Authentication extends Controller
         }     
         $user = Auth::user();
         $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-        $otpExpiration = now()->addMinutes(5); 
+        $otpExpiration = now()->addMinutes(1); 
         session(['otp' => $otp, 'otp_expiration' => $otpExpiration]);
-        Mail::to($user->email)->send(new OtpMail($otp));
+        Mail::to($user->email)->send(new OtpMail($otp, $otpExpiration));
         $token = $user->createToken('auth_token')->plainTextToken;   
         return response()->json([
             'message' => 'Login successful. Please check your email for OTP.',
@@ -66,7 +67,8 @@ class Authentication extends Controller
         $numberOTP = $request->input('numberotp');
         $otpN = (int)$numberOTP;
         $otpS = session()->get('otp');
-        if($otpN == $otpS) {
+        $otp_ex = session()->get('otp_expiration');
+        if($otpN == $otpS && $otp_ex > now()) {
             session(['verify' => true]);
             session()->forget('otp');  
             return response()->json(['message' => true, 'role' => $roleUser]);
@@ -81,15 +83,56 @@ class Authentication extends Controller
         $user = Auth::user();
     }
 
-    public function registerfaceid(Request $request){
-        $faceDescriptor = json_decode($request->inptu('face_id_token'));
-        if(!$faceDescriptor){
-            return response()->json(['message' => 'Không Hợp Lệ'], 400);
+    public function registerfaceid(Request $request)
+    {
+        $image = $request->input('imageSrc');
+        if (!$image) {
+            return response()->json(['message' => 'No image data provided'], 400);
         }
+        $image = str_replace('data:image/webp;base64,', '', $image);
+        $image = str_replace(' ', '+', $image); 
+        $imageData = base64_decode($image);
+        if ($imageData === false) {
+            return response()->json(['message' => 'Invalid image data'], 400);
+        }
+        $imageName = 'faceid_' . time() . '.webp';
+        $path = 'faceid/' . $imageName;
 
         $user = Auth::user();
-        $user->face_id_image = json_encode($faceDescriptor);
+        $user->face_id_image = $imageName;
         $user->save();
-        return response()->json(['message' => 'FaceID đã được đăng ký thành công']);
+        if (Storage::disk('public')->put($path, $imageData)) {
+            return response()->json([
+                'message' => 'Image uploaded successfully',
+                'path' => Storage::url($path)
+            ]);
+        } else {
+            return response()->json(['message' => 'Failed to save image'], 500);
+        }
     }
+
+    public function verifyfaceid(Request $request){
+        $image = $request->input('imgSrc');
+        if (!$image) {
+            return response()->json(['message' => 'No image data provided'], 400);
+        }
+        $image = str_replace('data:image/webp;base64,', '', $image);
+        $image = str_replace(' ', '+', $image); 
+        $imageData = base64_decode($image);
+        if ($imageData === false) {
+            return response()->json(['message' => 'Invalid image data'], 400);
+        }
+        $imageName = 'faceidverify_' . time() . '.webp';
+        $path = 'faceidverify/' . $imageName;
+        if (Storage::disk('public')->put($path, $imageData)) {
+            return response()->json([
+                'message' => 'Image uploaded successfully',
+                'path' => Storage::url($path),
+                'image' => $imageName
+            ]);
+        } else {
+            return response()->json(['message' => 'Failed to save image'], 500);
+        }
+    }
+
 }

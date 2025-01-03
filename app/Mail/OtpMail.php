@@ -13,12 +13,14 @@ class OtpMail extends Mailable
 {
     use Queueable, SerializesModels;
     public $otp;
+    public $otpExpiration;
     /**
      * Create a new message instance.
      */
-    public function __construct($otp)
+    public function __construct($otp, $otpExpiration)
     {
         $this->otp = $otp;
+        $this->otpExpiration = $otpExpiration;
     }
 
 
@@ -42,6 +44,7 @@ class OtpMail extends Mailable
             view: 'email.welcome',
             with: [
                 'otp' => $this->otp,
+                'otp_ex' => $this->otpExpiration->setTimezone('Asia/Ho_Chi_Minh')->format('Y-m-d H:i:s'),
             ],
         );
     }

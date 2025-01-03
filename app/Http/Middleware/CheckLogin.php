@@ -19,6 +19,10 @@ class CheckLogin
         if(!Auth::check()){
             return redirect('/login');
         }
+
+        if (!session()->has('verify') || session('verify') !== true) {
+            return redirect('/login');
+        }
         return $next($request);
     }
 }

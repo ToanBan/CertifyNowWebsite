@@ -10,5 +10,6 @@
     <h1>Mã Xác Thực Của Bạn Là</h1>
     <p>welcome</p>
     <p>Otp {{$otp}}</p>
+    <p>Thời Gian Mã OTP Hết Hạn Vào Lúc: {{$otp_ex}}</p>
 </body>
 </html>
